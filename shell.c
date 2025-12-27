@@ -2,6 +2,8 @@
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+#include <sys/wait.h>
 
 extern char **environ;
 
@@ -15,6 +17,7 @@ void shell_loop(void)
     ssize_t nread;
     pid_t pid;
     int status;
+    char *argv[1024]; /* ثابت الحجم لتجنب مشكلة pedantic */
 
     while ((nread = getline(&line, &len, stdin)) != -1)
     {
@@ -23,13 +26,24 @@ void shell_loop(void)
 
         line[nread - 1] = '\0'; /* Remove newline */
 
+        /* تحويل السطر إلى argv */
+        int i = 0;
+        char *token = strtok(line, " \t");
+        while (token != NULL)
+        {
+            argv[i++] = token;
+            token = strtok(NULL, " \t");
+        }
+        argv[i] = NULL;
+
+        if (argv[0] == NULL)
+            continue;
+
         pid = fork();
         if (pid == 0) /* Child */
         {
-            char *argv[] = {line, NULL};
             execve(argv[0], argv, environ);
-            /* If execve fails */
-            perror("./hsh");
+            perror("./hsh"); /* Error if command not found */
             exit(EXIT_FAILURE);
         }
         else if (pid > 0) /* Parent */
