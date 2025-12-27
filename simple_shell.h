@@ -1,14 +1,14 @@
 #ifndef SIMPLE_SHELL_H
 #define SIMPLE_SHELL_H
 
-#include <unistd.h>
-#include <stdlib.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <string.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 
-/* Prototypes */
-void shell_loop(void);
+int _exec_cmd(char *cmd, char *prog_name, char **env);
 
 #endif /* SIMPLE_SHELL_H */
 

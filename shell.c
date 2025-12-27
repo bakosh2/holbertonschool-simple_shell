@@ -1,61 +1,38 @@
 #include "simple_shell.h"
-#include <unistd.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <sys/wait.h>
 
-extern char **environ;
 
 /**
- * shell_loop - Runs the main loop of the simple shell
+ * _exec_cmd - execute a command using execve
+ * @cmd: command to execute (full path)
+ * @prog_name: name of the shell (argv[0])
+ * @env: environment variables
+ * Return: 0 on success, -1 on failure
  */
-void shell_loop(void)
+int _exec_cmd(char *cmd, char *prog_name, char **env)
 {
-    char *line = NULL;
-    size_t len = 0;
-    ssize_t nread;
     pid_t pid;
     int status;
-    char *argv[1024]; /* ثابت الحجم لتجنب مشكلة pedantic */
 
-    while ((nread = getline(&line, &len, stdin)) != -1)
+    if (cmd == NULL || *cmd == '\0')
+        return (-1);
+
+    pid = fork();
+    if (pid == -1)
     {
-        if (nread == 1) /* Empty line */
-            continue;
-
-        line[nread - 1] = '\0'; /* Remove newline */
-
-        /* تحويل السطر إلى argv */
-        int i = 0;
-        char *token = strtok(line, " \t");
-        while (token != NULL)
-        {
-            argv[i++] = token;
-            token = strtok(NULL, " \t");
-        }
-        argv[i] = NULL;
-
-        if (argv[0] == NULL)
-            continue;
-
-        pid = fork();
-        if (pid == 0) /* Child */
-        {
-            execve(argv[0], argv, environ);
-            perror("./hsh"); /* Error if command not found */
-            exit(EXIT_FAILURE);
-        }
-        else if (pid > 0) /* Parent */
-        {
-            wait(&status);
-        }
-        else
-        {
-            perror("fork");
-            exit(EXIT_FAILURE);
-        }
+        perror("fork");
+        return (-1);
     }
-    free(line);
-}
 
+    if (pid == 0) /* child process */
+    {
+        execve(cmd, NULL, env);
+        /* If execve fails */
+        exit(127);
+    }
+    else /* parent process */
+    {
+        waitpid(pid, &status, 0);
+    }
+
+    return (0);
+}
