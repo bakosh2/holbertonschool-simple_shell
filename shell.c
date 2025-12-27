@@ -1,12 +1,14 @@
 #include "simple_shell.h"
+#include <stdio.h>
 #include <unistd.h>
 #include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
 #include <sys/wait.h>
 
 extern char **environ;
 
+/**
+ * shell_loop - Runs the main loop of the simple shell
+ */
 void shell_loop(void)
 {
     char *line = NULL;
@@ -15,40 +17,45 @@ void shell_loop(void)
     pid_t pid;
     int status;
 
-    while ((nread = getline(&line, &len, stdin)) != -1)
+    while (1)
     {
-        if (nread == 1) /* Empty line */
-            continue;
+        if (isatty(STDIN_FILENO))
+            write(STDOUT_FILENO, "#cisfun$ ", 9);
 
-        line[nread - 1] = '\0'; /* Remove newline */
-
-        /* Split line into argv */
-        char *argv[1024];
-        int i = 0;
-        char *token = strtok(line, " \t");
-        while (token)
+        nread = getline(&line, &len, stdin);
+        if (nread == -1) /* Ctrl+D */
         {
-            argv[i++] = token;
-            token = strtok(NULL, " \t");
+            write(STDOUT_FILENO, "\n", 1);
+            break;
         }
-        argv[i] = NULL;
 
-        if (argv[0] == NULL)
+        if (nread > 0 && line[nread - 1] == '\n')
+            line[nread - 1] = '\0';
+
+        if (line[0] == '\0') /* Empty line */
             continue;
 
-        /* Fork and execute */
         pid = fork();
-        if (pid == 0)
+        if (pid == 0) /* Child process */
         {
-            execve(argv[0], argv, environ);
-            perror("Error");
+            char *argv[] = {line, NULL};
+
+            execve(line, argv, environ);
+            /* If execve fails */
+            fprintf(stderr, "%s: No such file or directory\n", line);
             exit(EXIT_FAILURE);
         }
-        else
+        else if (pid > 0) /* Parent process */
         {
             wait(&status);
         }
+        else
+        {
+            perror("fork");
+            exit(EXIT_FAILURE);
+        }
     }
+
     free(line);
 }
 
