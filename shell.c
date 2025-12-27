@@ -9,54 +9,48 @@ extern char **environ;
 
 /**
  * shell_loop - Runs the main loop of the simple shell
- *
- * Reads input from the user, executes commands, and waits for child processes.
  */
 void shell_loop(void)
 {
-	char *line = NULL;
-	size_t len = 0;
-	pid_t pid;
-	int status;
+    char *line = NULL;
+    size_t len = 0;
+    ssize_t nread;
+    char *argv[1024];
+    pid_t pid;
+    int status;
 
-	while (getline(&line, &len, stdin) != -1)
-	{
-		/* Skip empty lines */
-		if (line[0] == '\n')
-			continue;
+    while ((nread = getline(&line, &len, stdin)) != -1)
+    {
+        if (nread == 1) /* Empty line with just '\n' */
+            continue;
 
-		/* Remove trailing newline */
-		line[strcspn(line, "\n")] = '\0';
+        line[nread - 1] = '\0'; /* Remove trailing newline */
 
-		/* Fork a child process to execute the command */
-		pid = fork();
-		if (pid == 0)
-		{
-			/* Prepare argv array */
-			char *argv[2];
-			argv[0] = line;
-			argv[1] = NULL;
+        /* Tokenize the line into commands separated by spaces/tabs */
+        int i = 0;
+        char *token = strtok(line, " \t");
+        while (token != NULL)
+        {
+            argv[i++] = token;
+            token = strtok(NULL, " \t");
+        }
+        argv[i] = NULL;
 
-			/* Execute command */
-			execve(line, argv, environ);
+        if (argv[0] == NULL)
+            continue;
 
-			/* If execve fails */
-			perror("Error");
-			exit(EXIT_FAILURE);
-		}
-		else if (pid > 0)
-		{
-			/* Parent waits for child to finish */
-			wait(&status);
-		}
-		else
-		{
-			/* Fork failed */
-			perror("Fork failed");
-			break;
-		}
-	}
-
-	free(line);
+        pid = fork();
+        if (pid == 0)
+        {
+            execve(argv[0], argv, environ);
+            perror("Error");
+            exit(EXIT_FAILURE);
+        }
+        else
+        {
+            wait(&status);
+        }
+    }
+    free(line);
 }
 
