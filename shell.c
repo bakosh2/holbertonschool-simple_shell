@@ -1,8 +1,7 @@
 #include "simple_shell.h"
-#include <stdio.h>
 #include <unistd.h>
+#include <stdio.h>
 #include <stdlib.h>
-#include <sys/wait.h>
 
 extern char **environ;
 
@@ -17,35 +16,23 @@ void shell_loop(void)
     pid_t pid;
     int status;
 
-    while (1)
+    while ((nread = getline(&line, &len, stdin)) != -1)
     {
-        if (isatty(STDIN_FILENO))
-            write(STDOUT_FILENO, "#cisfun$ ", 9);
-
-        nread = getline(&line, &len, stdin);
-        if (nread == -1) /* Ctrl+D */
-        {
-            write(STDOUT_FILENO, "\n", 1);
-            break;
-        }
-
-        if (nread > 0 && line[nread - 1] == '\n')
-            line[nread - 1] = '\0';
-
-        if (line[0] == '\0') /* Empty line */
+        if (nread == 1) /* Empty line */
             continue;
 
+        line[nread - 1] = '\0'; /* Remove newline */
+
         pid = fork();
-        if (pid == 0) /* Child process */
+        if (pid == 0) /* Child */
         {
             char *argv[] = {line, NULL};
-
-            execve(line, argv, environ);
+            execve(argv[0], argv, environ);
             /* If execve fails */
-            fprintf(stderr, "%s: No such file or directory\n", line);
+            perror("./hsh");
             exit(EXIT_FAILURE);
         }
-        else if (pid > 0) /* Parent process */
+        else if (pid > 0) /* Parent */
         {
             wait(&status);
         }
@@ -55,7 +42,6 @@ void shell_loop(void)
             exit(EXIT_FAILURE);
         }
     }
-
     free(line);
 }
 
