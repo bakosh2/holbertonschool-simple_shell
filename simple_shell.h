@@ -8,7 +8,6 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 
-int _exec_cmd(char *cmd, char *prog_name, char **env); /* shell.c */
-int main(int argc, char **argv, char **env); /* main.c */
+int _exec_cmd(char *cmd, char *prog_name, char **env);
 
 #endif /* SIMPLE_SHELL_H */
