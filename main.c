@@ -14,6 +14,7 @@ int main(int argc, char **argv, char **env)
 
 	size_t len = 0;
 	ssize_t nread;
+	char *cmd;
 
 	(void)argc;
 
@@ -34,13 +35,31 @@ int main(int argc, char **argv, char **env)
 		if (line[nread - 1] == '\n')
 			line[nread - 1] = '\0';
 
-		if (_exec_cmd(line, argv[0], env) == -1)
+		/* skip leading spaces */
+		cmd = line;
+		while (*cmd == ' ' || *cmd == '\t')
+			cmd++;
+
+		/* if line is empty or spaces only, continue */
+		if (*cmd == '\0')
+			continue;
+
+		/* cut command at first space */
 		{
-			fprintf(stderr, "%s: 1: %s: not found\n", argv[0], line);
+			char *p = cmd;
+
+			while (*p && *p != ' ' && *p != '\t')
+				p++;
+			if (*p)
+				*p = '\0';		
+			}
+
+		if (_exec_cmd(cmd, argv[0], env) == -1)
+		{
+			fprintf(stderr, "%s: 1: %s: not found\n", argv[0], cmd);
 		}
 	}
 
 	free(line);
 	return (0);
 }
-
