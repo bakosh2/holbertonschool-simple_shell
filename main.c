@@ -1,6 +1,5 @@
 #include "simple_shell.h"
 
-
 /**
 * main - Entry point for the simple shell
 * @argc: argument count (not used)
@@ -43,16 +42,6 @@ int main(int argc, char **argv, char **env)
 		/* if line is empty or spaces only, continue */
 		if (*cmd == '\0')
 			continue;
-
-		/* cut command at first space */
-		{
-			char *p = cmd;
-
-			while (*p && *p != ' ' && *p != '\t')
-				p++;
-			if (*p)
-				*p = '\0';		
-			}
 
 		if (_exec_cmd(cmd, argv[0], env) == -1)
 		{
