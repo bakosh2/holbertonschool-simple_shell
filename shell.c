@@ -25,12 +25,19 @@ int _exec_cmd(char *cmd, char *prog_name, char **env)
 		return (-1);
 	}
 
-	if (pid == 0) /* child process */
-	{
-		execve(cmd, NULL, env);
-		/* If execve fails */
-		exit(127);
-	}
+if (pid == 0) /* child process */
+{
+
+	char *argv_exec[2];
+
+	argv_exec[0] = cmd;
+	argv_exec[1] = NULL;
+
+	/* if execve returns, an error occurred */
+	execve(cmd, argv_exec, env);
+	perror(prog_name);
+	exit(127);
+}
 	else /* parent process */
 	{
 		waitpid(pid, &status, 0);
