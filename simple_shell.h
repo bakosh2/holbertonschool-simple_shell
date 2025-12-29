@@ -4,10 +4,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include <string.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 
-int _exec_cmd(char *cmd, char *prog_name, char **env);
+int execute_cmd(char *cmd, char *prog_name, char **env);
 
 #endif /* SIMPLE_SHELL_H */
