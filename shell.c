@@ -1,61 +1,56 @@
 #include "simple_shell.h"
 
 /**
- * execute_cmd - execute a command using execve
- * @cmd: command line entered by the user
- * @prog_name: name of the shell
+ * main - Entry point for simple shell
+ * @argc: argument count
+ * @argv: argument vector
  * @env: environment variables
  *
- * Return: 0 on success, -1 on failure
+ * Return: 0 on success
  */
-int execute_cmd(char *cmd, char *prog_name, char **env)
+int main(int argc, char **argv, char **env)
 {
-	pid_t pid;
-	int status;
-	char *argv_exec[3];
-	char *arg = NULL;
+	char *line = NULL;
+	size_t len = 0;
+	ssize_t nread;
+	char *cmd;
 	char *p;
 
-	(void)prog_name;
+	(void)argc;
 
-	if (cmd == NULL || *cmd == '\0')
-		return (-1);
-
-	/* Extract optional single argument (Task 2 special case) */
-	p = cmd;
-	while (*p && *p != ' ' && *p != '\t')
-		p++;
-
-	if (*p)
+	while (1)
 	{
-		*p = '\0';
-		p++;
+		if (isatty(STDIN_FILENO))
+			write(STDOUT_FILENO, "#cisfun$ ", 9);
+
+		nread = getline(&line, &len, stdin);
+		if (nread == -1)
+		{
+			write(STDOUT_FILENO, "\n", 1);
+			break;
+		}
+
+		/* remove trailing newline */
+		if (line[nread - 1] == '\n')
+			line[nread - 1] = '\0';
+
+		/* skip leading spaces */
+		p = line;
 		while (*p == ' ' || *p == '\t')
 			p++;
-		if (*p)
-			arg = p;
+
+		/* ignore empty or spaces-only lines */
+		if (*p == '\0')
+			continue;
+
+		cmd = p;
+
+		if (execute_cmd(cmd, argv[0], env) == -1)
+		{
+			fprintf(stderr, "%s: 1: %s: not found\n", argv[0], cmd);
+		}
 	}
 
-	argv_exec[0] = cmd;
-	argv_exec[1] = arg;
-	argv_exec[2] = NULL;
-
-	pid = fork();
-	if (pid == -1)
-	{
-		perror("fork");
-		return (-1);
-	}
-
-	if (pid == 0)
-	{
-		execve(cmd, argv_exec, env);
-		exit(127);
-	}
-	else
-	{
-		waitpid(pid, &status, 0);
-	}
-
+	free(line);
 	return (0);
 }
