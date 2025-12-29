@@ -2,7 +2,7 @@
 
 /**
  * execute_cmd - Executes a command using execve
- * @cmd: command to execute (single word, full path)
+ * @cmd: command line
  * @prog_name: program name
  * @env: environment variables
  *
@@ -10,31 +10,40 @@
  */
 int execute_cmd(char *cmd, char *prog_name, char **env)
 {
-	pid_t pid;
-	int status;
-	char *argv_exec[2];
+        pid_t pid;
+        int status;
+        char *argv_exec[64];
+        char *token;
+        int i = 0;
 
-	(void)prog_name;
+        (void)prog_name;
 
-	if (cmd == NULL || *cmd == '\0')
-		return (-1);
+        if (cmd == NULL || *cmd == '\0')
+                return (-1);
 
-	argv_exec[0] = cmd;
-	argv_exec[1] = NULL;
+        /* tokenize command */
+        token = strtok(cmd, " ");
+        while (token && i < 63)
+        {
+                argv_exec[i++] = token;
+                token = strtok(NULL, " ");
+        }
+        argv_exec[i] = NULL;
 
-	pid = fork();
-	if (pid == -1)
-		return (-1);
+        pid = fork();
+        if (pid == -1)
+                return (-1);
 
-	if (pid == 0)
-	{
-		execve(cmd, argv_exec, env);
-		exit(127);
-	}
-	else
-	{
-		waitpid(pid, &status, 0);
-	}
+        if (pid == 0)
+        {
+                execve(argv_exec[0], argv_exec, env);
+                exit(127);
+        }
+        else
+        {
+                waitpid(pid, &status, 0);
+        }
 
-	return (0);
+        return (0);
 }
+
