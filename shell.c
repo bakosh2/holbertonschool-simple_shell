@@ -1,19 +1,20 @@
 #include "simple_shell.h"
 
 /**
-* _exec_cmd - execute a command using execve
-* @cmd: command to execute (full path)
-* @prog_name: name of the shell (argv[0])
-* @env: environment variables
-* Return: 0 on success, -1 on failure
-*/
-int _exec_cmd(char *cmd, char *prog_name, char **env)
+ * execute_cmd - Executes a command using execve
+ * @cmd: command to execute (single word, full path)
+ * @prog_name: program name
+ * @env: environment variables
+ *
+ * Return: 0 on success, -1 on failure
+ */
+int execute_cmd(char *cmd, char *prog_name, char **env)
 {
 	pid_t pid;
 	int status;
 	char *argv_exec[2];
 
-	(void)prog_name; /* add for unused parameter for now */
+	(void)prog_name;
 
 	if (cmd == NULL || *cmd == '\0')
 		return (-1);
@@ -23,9 +24,9 @@ int _exec_cmd(char *cmd, char *prog_name, char **env)
 
 	pid = fork();
 	if (pid == -1)
-	return (-1);
+		return (-1);
 
-	if (pid == 0) /* child process */
+	if (pid == 0)
 	{
 		execve(cmd, argv_exec, env);
 		exit(127);
