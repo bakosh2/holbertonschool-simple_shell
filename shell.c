@@ -10,52 +10,42 @@
  */
 int execute_cmd(char *cmd, char *prog_name, char **env)
 {
-	pid_t pid;
-	int status;
-	char *argv_exec[3];
-	char *arg = NULL;
-	char *p;
+        pid_t pid;
+        int status;
+        char *argv_exec[64];
+        char *token;
+        int i = 0;
 
-	(void)prog_name;
+        (void)prog_name;
 
-	if (cmd == NULL || *cmd == '\0')
-		return (-1);
+        if (cmd == NULL || *cmd == '\0')
+                return (-1);
 
-	/* extract optional single argument */
-	p = cmd;
-	while (*p && *p != ' ' && *p != '\t')
-		p++;
+        token = strtok(cmd, " \t");
+        while (token && i < 63)
+        {
+                argv_exec[i++] = token;
+                token = strtok(NULL, " \t");
+        }
+        argv_exec[i] = NULL;
 
-	if (*p)
-	{
-		*p = '\0';
-		p++;
-		while (*p == ' ' || *p == '\t')
-			p++;
-		if (*p)
-			arg = p;
-	}
+        pid = fork();
+        if (pid == -1)
+        {
+                perror("fork");
+                return (-1);
+        }
 
-	argv_exec[0] = cmd;
-	argv_exec[1] = arg;
-	argv_exec[2] = NULL;
+        if (pid == 0)
+        {
+                execve(argv_exec[0], argv_exec, env);
+                exit(127);
+        }
+        else
+        {
+                waitpid(pid, &status, 0);
+        }
 
-	pid = fork();
-	if (pid == -1)
-	{
-		perror("fork");
-		return (-1);
-	}
-
-	if (pid == 0)
-	{
-		execve(cmd, argv_exec, env);
-		exit(127);
-	}
-	else
-	{
-		waitpid(pid, &status, 0);
-	}
-
-	return (0);
+        return (0);
 }
+
