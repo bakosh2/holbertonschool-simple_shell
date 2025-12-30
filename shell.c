@@ -1,11 +1,11 @@
 #include "simple_shell.h"
 
 /**
- * execute_cmd - execute command
- * @line: input line
- * @prog_name: program name
+ * execute_cmd - parse and execute command
+ * @line: raw input line
+ * @prog_name: shell name
  *
- * Return: 0 on success
+ * Return: 0
  */
 int execute_cmd(char *line, char *prog_name)
 {
@@ -13,7 +13,6 @@ int execute_cmd(char *line, char *prog_name)
 	char *path;
 	pid_t pid;
 	int status;
-
 
 	argv = split_line(line);
 	if (!argv || !argv[0])

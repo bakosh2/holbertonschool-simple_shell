@@ -1,11 +1,11 @@
 #include "simple_shell.h"
 
 /**
- * main - Entry point for the simple shell program
- * @argc: Argument count
- * @argv: Argument vector
+ * main - Simple shell entry point
+ * @argc: argument count
+ * @argv: argument vector
  *
- * Return: Always 0 (success)
+ * Return: 0
  */
 int main(int argc, char **argv)
 {
@@ -15,7 +15,7 @@ int main(int argc, char **argv)
 
 	(void)argc;
 
-	while (1) /* Infinite loop for the shell prompt */
+	while (1)
 	{
 		if (isatty(STDIN_FILENO))
 			write(STDOUT_FILENO, "#cisfun$ ", 9);
@@ -31,7 +31,7 @@ int main(int argc, char **argv)
 		if (line[nread - 1] == '\n')
 			line[nread - 1] = '\0';
 
-			execute_cmd(line, argv[0]);
+		execute_cmd(line, argv[0]);
 	}
 
 	free(line);
