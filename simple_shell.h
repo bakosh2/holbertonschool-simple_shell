@@ -1,18 +1,29 @@
 #ifndef SIMPLE_SHELL_H
 #define SIMPLE_SHELL_H
 
+#include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>
 #include <string.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <sys/stat.h>
 
-extern char **environ;
+/* Shell core */
+int execution(char **tokens, char **env);
+char *find_command(char *cmd, char **env);
+char **tokenization(char *str, char *delim);
+int die(char **tokens);
 
-int execute_cmd(char *line, char *prog_name);
-char *resolve_path(char *cmd);
-char **split_line(char *line);
-void free_argv(char **argv);
+/* String helpers */
+int _strlen(char *s);
+char *_strcpy(char *dest, char *src);
+char *_strcat(char *dest, char *src);
+char *_strdup(char *s);
+int _strcmp(char *s1, char *s2);
+int _strncmp(char *s1, char *s2, size_t n);
+
+/* Memory */
+void free_array(char **tokens);
 
 #endif /* SIMPLE_SHELL_H */

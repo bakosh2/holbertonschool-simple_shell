@@ -1,37 +1,34 @@
 #include "simple_shell.h"
 
 /**
- * main - Simple shell entry point
- * @argc: argument count
- * @argv: argument vector
- *
- * Return: 0
- */
-int main(int argc, char **argv)
+* main - Entry point of the simple shell
+* @ac: argument count (unused)
+* @av: argument vector (unused)
+* @env: environment variables
+*
+* Return: 0
+*/
+int main(int ac __attribute__((unused)), char **av __attribute__((unused)), char **env)
 {
 	char *line = NULL;
-	size_t len = 0;
-	ssize_t nread;
 
-	(void)argc;
+	size_t len = 0;
+	char **tokens = NULL;
 
 	while (1)
 	{
 		if (isatty(STDIN_FILENO))
-			write(STDOUT_FILENO, "#cisfun$ ", 9);
+			write(STDOUT_FILENO, "$ ", 2);
 
-		nread = getline(&line, &len, stdin);
-		if (nread == -1)
+		if (getline(&line, &len, stdin) == -1)
 		{
-			if (isatty(STDIN_FILENO))
-				write(STDOUT_FILENO, "\n", 1);
-			break;
+			free(line);
+			exit(EXIT_SUCCESS);
 		}
 
-		if (line[nread - 1] == '\n')
-			line[nread - 1] = '\0';
-
-		execute_cmd(line, argv[0]);
+		tokens = tokenization(line, " \n");
+		execution(tokens, env);
+		free_array(tokens);
 	}
 
 	free(line);

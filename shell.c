@@ -1,44 +1,40 @@
 #include "simple_shell.h"
 
 /**
- * execute_cmd - parse and execute command
- * @line: raw input line
- * @prog_name: shell name
- *
- * Return: 0
- */
-int execute_cmd(char *line, char *prog_name)
+* execution - executes a command
+* @tokens: tokenized command
+* @env: environment variables
+*
+* Return: 0
+*/
+int execution(char **tokens, char **env)
 {
-	char **argv;
-	char *path;
+	char *cmd_path;
+
 	pid_t pid;
 	int status;
 
-	argv = split_line(line);
-	if (!argv || !argv[0])
-	{
-		free_argv(argv);
+	if (!tokens || !tokens[0])
 		return (0);
-	}
 
-	path = resolve_path(argv[0]);
-	if (!path)
+	cmd_path = find_command(tokens[0], env);
+	if (!cmd_path)
 	{
-		fprintf(stderr, "%s: 1: %s: not found\n", prog_name, argv[0]);
-		free_argv(argv);
-		return (0); /* NO fork */
+		write(2, "./hsh: 1: ", 10);
+		write(2, tokens[0], _strlen(tokens[0]));
+		write(2, ": not found\n", 12);
+		return (0); /* ❗ NO fork */
 	}
 
 	pid = fork();
 	if (pid == 0)
 	{
-		execve(path, argv, environ);
-		exit(127);
+		if (execve(cmd_path, tokens, env) == -1)
+			exit(1);
 	}
 	else
-		waitpid(pid, &status, 0);
+		wait(&status);
 
-	free(path);
-	free_argv(argv);
+	free(cmd_path);
 	return (0);
 }
