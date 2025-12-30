@@ -9,6 +9,8 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 
+extern char **environ;
+
 int execute_cmd(char *cmd, char *prog_name);
 char *find_in_path(char *cmd);
 char **split_line(char *line);
