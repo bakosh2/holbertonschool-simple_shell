@@ -1,17 +1,20 @@
 #include "simple_shell.h"
 
 /**
- * find_in_path - search PATH for command
- * @cmd: command
+ * resolve_path - find executable path
+ * @cmd: command name
  *
- * Return: malloc'd full path or NULL
+ * Return: malloc'd path or NULL
  */
-char *find_in_path(char *cmd)
+char *resolve_path(char *cmd)
 {
-	char *path_env = getenv("PATH");
-	char *copy, *token, *full;
+	char *path_env, *copy, *dir, *full;
 	int len;
 
+	if (strchr(cmd, '/'))
+		return (access(cmd, X_OK) == 0 ? strdup(cmd) : NULL);
+
+	path_env = getenv("PATH");
 	if (!path_env || *path_env == '\0')
 		return (NULL);
 
@@ -19,18 +22,18 @@ char *find_in_path(char *cmd)
 	if (!copy)
 		return (NULL);
 
-	token = strtok(copy, ":");
-	while (token)
+	dir = strtok(copy, ":");
+	while (dir)
 	{
-		len = strlen(token) + strlen(cmd) + 2;
+		len = strlen(dir) + strlen(cmd) + 2;
 		full = malloc(len);
 		if (!full)
 		{
 			free(copy);
 			return (NULL);
 		}
-		snprintf(full, len, "%s/%s", token, cmd);
 
+		snprintf(full, len, "%s/%s", dir, cmd);
 		if (access(full, X_OK) == 0)
 		{
 			free(copy);
@@ -38,7 +41,7 @@ char *find_in_path(char *cmd)
 		}
 
 		free(full);
-		token = strtok(NULL, ":");
+		dir = strtok(NULL, ":");
 	}
 
 	free(copy);

@@ -1,10 +1,10 @@
 #include "simple_shell.h"
 
 /**
- * split_line - split command line into argv
+ * split_line - tokenize input line
  * @line: input
  *
- * Return: NULL-terminated argv
+ * Return: argv
  */
 char **split_line(char *line)
 {
@@ -23,11 +23,12 @@ char **split_line(char *line)
 		token = strtok(NULL, " \t");
 	}
 	argv[i] = NULL;
+
 	return (argv);
 }
 
 /**
- * free_argv - free argv array
+ * free_argv - free argv
  * @argv: argument vector
  */
 void free_argv(char **argv)

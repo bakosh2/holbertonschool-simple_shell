@@ -2,17 +2,16 @@
 #define SIMPLE_SHELL_H
 
 #include <stdio.h>
-#include <string.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include <string.h> /* For strtok function */
+#include <string.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 
 extern char **environ;
 
-int execute_cmd(char *cmd, char *prog_name);
-char *find_in_path(char *cmd);
+int execute_cmd(char *line, char *prog_name);
+char *resolve_path(char *cmd);
 char **split_line(char *line);
 void free_argv(char **argv);
 

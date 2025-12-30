@@ -12,7 +12,6 @@ int main(int argc, char **argv)
 	char *line = NULL;
 	size_t len = 0;
 	ssize_t nread;
-	char *p;
 
 	(void)argc;
 
@@ -32,14 +31,7 @@ int main(int argc, char **argv)
 		if (line[nread - 1] == '\n')
 			line[nread - 1] = '\0';
 
-		p = line;
-		while (*p == ' ' || *p == '\t')
-			p++;
-
-		if (*p == '\0')
-			continue;
-
-		execute_cmd(p, argv[0]);
+			execute_cmd(line, argv[0]);
 	}
 
 	free(line);

@@ -1,13 +1,13 @@
 #include "simple_shell.h"
 
 /**
- * execute_cmd - execute a command with PATH handling
- * @cmd: command line
- * @prog_name: shell name
+ * execute_cmd - execute command
+ * @line: input line
+ * @prog_name: program name
  *
- * Return: 0 always
+ * Return: 0 on success
  */
-int execute_cmd(char *cmd, char *prog_name)
+int execute_cmd(char *line, char *prog_name)
 {
 	char **argv;
 	char *path;
@@ -15,18 +15,14 @@ int execute_cmd(char *cmd, char *prog_name)
 	int status;
 
 
-	argv = split_line(cmd);
+	argv = split_line(line);
 	if (!argv || !argv[0])
 	{
 		free_argv(argv);
 		return (0);
 	}
 
-	if (strchr(argv[0], '/'))
-		path = strdup(argv[0]);
-	else
-		path = find_in_path(argv[0]);
-
+	path = resolve_path(argv[0]);
 	if (!path)
 	{
 		fprintf(stderr, "%s: 1: %s: not found\n", prog_name, argv[0]);
@@ -40,10 +36,8 @@ int execute_cmd(char *cmd, char *prog_name)
 		execve(path, argv, environ);
 		exit(127);
 	}
-	else if (pid > 0)
-	{
+	else
 		waitpid(pid, &status, 0);
-	}
 
 	free(path);
 	free_argv(argv);
