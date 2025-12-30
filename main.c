@@ -1,26 +1,25 @@
 #include "simple_shell.h"
 
 /**
- * main - Entry point of the simple shell
- * @argc: argument count (unused)
- * @argv: argument vector
- * @env: environment variables
+ * main - Entry point for the simple shell program
+ * @argc: Argument count
+ * @argv: Argument vector
  *
- * Return: Always 0
+ * Return: Always 0 (success)
  */
-int main(int argc, char **argv, char **env)
+int main(int argc, char **argv)
 {
 	char *line = NULL;
 	size_t len = 0;
 	ssize_t nread;
-	char *cmd;
+	char *p;
 
 	(void)argc;
 
-	while (1)
+	while (1) /* Infinite loop for the shell prompt */
 	{
 		if (isatty(STDIN_FILENO))
-			write(STDOUT_FILENO, "$ ", 2);
+			write(STDOUT_FILENO, "#cisfun$ ", 9);
 
 		nread = getline(&line, &len, stdin);
 		if (nread == -1)
@@ -33,17 +32,16 @@ int main(int argc, char **argv, char **env)
 		if (line[nread - 1] == '\n')
 			line[nread - 1] = '\0';
 
-		cmd = line;
-		while (*cmd == ' ' || *cmd == '\t')
-			cmd++;
+		p = line;
+		while (*p == ' ' || *p == '\t')
+			p++;
 
-		if (*cmd == '\0')
+		if (*p == '\0')
 			continue;
 
-		execute_cmd(cmd, argv[0], env);
+		execute_cmd(p, argv[0]);
 	}
 
 	free(line);
 	return (0);
 }
-					

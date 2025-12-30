@@ -1,56 +1,51 @@
 #include "simple_shell.h"
 
 /**
- * execute_cmd - Execute a command with its arguments
- * @cmd: command line entered by the user
- * @prog_name: name of the shell (argv[0])
- * @env: environment variables
- *
- * Return: 0 on success
- */
-int execute_cmd(char *cmd, char *prog_name, char **env)
+* execute_cmd - execute a command with PATH handling
+* @cmd: command line
+* @prog_name: shell name
+*
+* Return: 0 always
+*/
+int execute_cmd(char *cmd, char *prog_name)
 {
+	char **argv = NULL;
+
+	char *path = NULL;
+
 	pid_t pid;
-	int status;
-	char *argv_exec[64];
-	char *token;
-	int i = 0;
 
-	(void)prog_name;
-
-	if (cmd == NULL || *cmd == '\0')
-		return (0);
-
-	/* Split command into arguments */
-	token = strtok(cmd, " \t");
-	while (token && i < 63)
+	argv = split_line(cmd);
+	if (!argv || !argv[0])
 	{
-		argv_exec[i++] = token;
-		token = strtok(NULL, " \t");
-	}
-	argv_exec[i] = NULL;
-
-	if (argv_exec[0] == NULL)
+		free_argv(argv);
 		return (0);
+	}
+
+	if (strchr(argv[0], '/'))	/* absolute or relative path */
+		path = strdup(argv[0]);
+	else
+		path = find_in_path(argv[0]);
+
+	if (!path)
+	{
+		fprintf(stderr, "%s: 1: %s: not found\n", prog_name, argv[0]);
+		free_argv(argv);
+		return (0);	/* IMPORTANT: no fork */
+	}
 
 	pid = fork();
-	if (pid == -1)
-	{
-		perror("fork");
-		return (0);
-	}
-
 	if (pid == 0)
 	{
-		execve(argv_exec[0], argv_exec, env);
-		perror(argv_exec[0]);
+	if (pid == 0)
+	{
+		execv(path, argv);
 		exit(127);
 	}
-	else
-	{
-		waitpid(pid, &status, 0);
+
+	free(path);
+	free_argv(argv);
 	}
 
 	return (0);
 }
-
