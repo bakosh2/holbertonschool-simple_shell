@@ -1,36 +1,49 @@
 #include "simple_shell.h"
 
 /**
-* main - simple shell main loop
-* @ac: argument count
-* @av: argument vector
-* @env: environment variables
-*
-* Return: 0 on success
-*/
-int main(int ac, char **av, char **env)
+ * main - Entry point of the simple shell
+ * @argc: argument count
+ * @argv: argument vector
+ * @env: environment variables
+ *
+ * Return: Always 0
+ */
+int main(int argc, char **argv, char **env)
 {
-	char *line = NULL;
+	char *line = NULL, *token;
+	char *tokens[64];
 	size_t len = 0;
-	char **tokens = NULL;
-	(void)ac;   /* unused */
+	ssize_t nread;
+	int i;
+
+	(void)argc;
 
 	while (1)
 	{
 		if (isatty(STDIN_FILENO))
-			write(STDOUT_FILENO, "$ ", 2);
+			write(STDOUT_FILENO, "#cisfun$ ", 9);
 
-		if (getline(&line, &len, stdin) == -1)
+		nread = getline(&line, &len, stdin);
+		if (nread == -1)
+			break;
+
+		if (line[nread - 1] == '\n')
+			line[nread - 1] = '\0';
+
+		token = strtok(line, " \t");
+		i = 0;
+		while (token && i < 63)
 		{
-			free(line);
-			exit(EXIT_SUCCESS);
+			tokens[i++] = token;
+			token = strtok(NULL, " \t");
 		}
+		tokens[i] = NULL;
 
-		tokens = tokenization(line, " \n");
-		execution(tokens, env, av[0]);
-		free_array(tokens);
+		if (tokens[0])
+			execution(tokens, env, argv[0]);
 	}
 
 	free(line);
 	return (0);
 }
+

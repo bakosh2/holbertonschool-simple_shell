@@ -12,7 +12,6 @@
 /* Shell core */
 int execution(char **tokens, char **env, char *prog_name);
 char *find_command(char *cmd, char **env);
-char **tokenization(char *str, char *delim);
 int die(char **tokens);
 
 /* String helpers */
