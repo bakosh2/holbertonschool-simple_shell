@@ -1,13 +1,14 @@
 #include "simple_shell.h"
 
 /**
-* execution - executes a command
-* @tokens: tokenized command
+* execution - executes a command by forking a child process
+* @tokens: array of command and its arguments
 * @env: environment variables
+* @prog_name: name of the program (for error messages)
 *
-* Return: 0
+* Return: 0 on success, -1 on failure
 */
-int execution(char **tokens, char **env)
+int execution(char **tokens, char **env, char *prog_name)
 {
 	char *cmd_path;
 
@@ -20,10 +21,11 @@ int execution(char **tokens, char **env)
 	cmd_path = find_command(tokens[0], env);
 	if (!cmd_path)
 	{
-		write(2, "./hsh: 1: ", 10);
+		write(2, prog_name, _strlen(prog_name));
+		write(2, ": 1: ", 5); /* line number still 1 for now */
 		write(2, tokens[0], _strlen(tokens[0]));
 		write(2, ": not found\n", 12);
-		return (0); /* ❗ NO fork */
+		return (0); /* NO fork */
 	}
 
 	pid = fork();

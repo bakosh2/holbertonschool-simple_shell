@@ -1,19 +1,19 @@
 #include "simple_shell.h"
 
 /**
-* main - Entry point of the simple shell
-* @ac: argument count (unused)
-* @av: argument vector (unused)
+* main - simple shell main loop
+* @ac: argument count
+* @av: argument vector
 * @env: environment variables
 *
-* Return: 0
+* Return: 0 on success
 */
-int main(int ac __attribute__((unused)), char **av __attribute__((unused)), char **env)
+int main(int ac, char **av, char **env)
 {
 	char *line = NULL;
-
 	size_t len = 0;
 	char **tokens = NULL;
+	(void)ac;   /* unused */
 
 	while (1)
 	{
@@ -27,7 +27,7 @@ int main(int ac __attribute__((unused)), char **av __attribute__((unused)), char
 		}
 
 		tokens = tokenization(line, " \n");
-		execution(tokens, env);
+		execution(tokens, env, av[0]);
 		free_array(tokens);
 	}
 
