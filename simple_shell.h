@@ -13,6 +13,7 @@
 int execution(char **tokens, char **env, char *prog_name);
 char *find_command(char *cmd, char **env);
 int die(char **tokens);
+int builtin_exit(char **tokens); 
 
 /* String helpers */
 int _strlen(char *s);
