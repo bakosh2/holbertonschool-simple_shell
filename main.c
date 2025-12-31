@@ -41,7 +41,15 @@ int main(int argc, char **argv, char **env)
         tokens[i] = NULL;
 
         if (tokens[0])
-            last_status = execution(tokens, env, argv[0]);
+        {
+            if (_strcmp(tokens[0], "exit") == 0)
+            {
+                free(line);
+                return (last_status);  /* خروج من الشيل */
+            }
+
+            last_status = execution(tokens, env, argv[0]); /* تنفيذ باقي الأوامر */
+        }
     }
 
     free(line);
