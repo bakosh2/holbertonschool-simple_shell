@@ -21,7 +21,7 @@ int execution(char **tokens, char **env, char *prog_name)
 		write(2, ": 1: ", 5);
 		write(2, tokens[0], _strlen(tokens[0]));
 		write(2, ": not found\n", 12);
-		return (0); /* NO fork */
+		return (127); /* NO fork */
 	}
 
 	pid = fork();
@@ -33,6 +33,6 @@ int execution(char **tokens, char **env, char *prog_name)
 	else
 		waitpid(pid, &status, 0);
 
-	free(cmd_path);
-	return (0);
+	 free(cmd_path);
+    return (WEXITSTATUS(status));
 }
