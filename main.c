@@ -45,10 +45,22 @@ int main(int argc, char **argv, char **env)
             if (_strcmp(tokens[0], "exit") == 0)
             {
                 free(line);
-                return (last_status);  /* خروج من الشيل */
+                exit(0);
             }
-
-            last_status = execution(tokens, env, argv[0]); /* تنفيذ باقي الأوامر */
+            else if (_strcmp(tokens[0], "env") == 0)
+            {
+                /* Print all environment variables */
+                for (i = 0; env[i]; i++)
+                {
+                    write(STDOUT_FILENO, env[i], _strlen(env[i]));
+                    write(STDOUT_FILENO, "\n", 1);
+                }
+                last_status = 0;
+            }
+            else
+            {
+                last_status = execution(tokens, env, argv[0]);
+            }
         }
     }
 
