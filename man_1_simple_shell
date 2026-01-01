@@ -1,0 +1,118 @@
+.TH simple_shell 1 "January 2026" "Holberton School" "User Commands"
+.SH NAME
+simple_shell \- simple UNIX command interpreter
+
+.SH SYNOPSIS
+.B simple_shell
+.br
+.B ./hsh
+
+.SH DESCRIPTION
+The simple_shell program is a minimal UNIX command interpreter written in C.
+It reads commands from standard input, parses them, resolves executable paths,
+creates child processes, and executes programs using execve.
+
+The shell works in both interactive and non-interactive modes. In interactive
+mode, it displays a prompt and waits for user input. In non-interactive mode,
+it reads commands from standard input until EOF.
+
+.SH INTERACTIVE MODE
+When standard input is a terminal, the shell displays the prompt:
+.PP
+#cisfun$
+.PP
+The user may enter commands, which are executed immediately.
+
+.SH NON-INTERACTIVE MODE
+When input is piped or redirected, the shell reads and executes commands
+without displaying a prompt.
+.PP
+Example:
+.PP
+echo "ls" | ./hsh
+
+.SH COMMAND EXECUTION
+Commands are split into tokens separated by spaces or tabs. The first token is
+treated as the command name.
+
+If the command begins with '/', './', or '../', it is executed directly.
+Otherwise, the shell searches for the command in the directories listed in the
+PATH environment variable.
+
+If the command is found, the shell forks a child process and executes it using:
+.PP
+execve(path, argv, env);
+
+The parent process waits for the child to finish before reading the next input.
+
+.SH BUILT-IN COMMANDS
+.SS exit
+Exit the shell.
+.PP
+Usage:
+.PP
+exit
+.PP
+The shell exits with status 0.
+
+.SS env
+Print the current environment variables.
+.PP
+Usage:
+.PP
+env
+
+.SH ENVIRONMENT
+The following environment variable affects the behavior of the shell:
+
+.TP
+PATH
+A colon-separated list of directories to search for executable commands.
+
+.SH RETURN VALUE
+The shell returns the exit status of the last executed command.
+
+If a command is not found, the shell returns 127.
+
+.SH ERROR HANDLING
+If a command cannot be found, the shell prints an error message in the format:
+.PP
+./hsh: 1: command: not found
+
+.SH FILES
+.TP
+main.c
+Input loop, tokenization, interactive and non-interactive handling.
+.TP
+shell.c
+Forking, execution, and built-in handling.
+.TP
+fork.c
+PATH resolution and command lookup.
+.TP
+string_helpers.c
+Custom string functions.
+.TP
+free_array.c
+Memory cleanup helpers.
+.TP
+simple_shell.h
+Header file.
+
+.SH LIMITATIONS
+This shell does not support:
+.PP
+Pipes
+.br
+Redirections
+.br
+Logical operators
+.br
+Variables or expansions
+.br
+Comments
+.br
+Advanced built-ins such as cd, setenv, unsetenv
+
+.SH AUTHOR
+Badriah Barakat & Ebtihal Alomari
