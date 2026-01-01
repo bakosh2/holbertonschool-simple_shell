@@ -3,8 +3,6 @@
 simple_shell \- simple UNIX command interpreter
 
 .SH SYNOPSIS
-.B simple_shell
-.br
 .B ./hsh
 
 .SH DESCRIPTION
@@ -51,7 +49,7 @@ Exit the shell.
 .PP
 Usage:
 .PP
-exit
+The exit command terminates the shell.
 .PP
 The shell exits with status 0.
 
@@ -116,3 +114,6 @@ Advanced built-ins such as cd, setenv, unsetenv
 
 .SH AUTHOR
 Badriah Barakat & Ebtihal Alomari
+
+.SH SEE ALSO
+sh(1), bash(1), execve(2), fork(2)
